@@ -14,7 +14,7 @@ const App = () => {
   const [entries, setEntries] = useState([])
 
   useEffect( ()  => {
-    const fetchEntries = async () => {const res = await fetch('http://localhost:4001/entries')
+    const fetchEntries = async () => {const res = await fetch(`${import.meta.env.VITE_API_HOST}/entries`)
     const data = await res.json()
     setEntries(data)
     }
@@ -28,7 +28,7 @@ const App = () => {
   }
 
   async function addEntry(category, content){
-    const returnedEntry = await fetch('http://localhost:4001/entries', {
+    const returnedEntry = await fetch(`${import.meta.env.VITE_API_HOST}/entries`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ category, content })
