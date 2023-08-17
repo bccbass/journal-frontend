@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react'
+import React, { useState, useEffect, useReducer } from 'react'
 import { BrowserRouter, Routes, Route, useParams, useNavigate } from 'react-router-dom'
 import Home from './Home'
 import CategorySelection from './CategorySelection'
@@ -21,13 +21,6 @@ function reducer(currentState, action){
         ...currentState,
         entries: action.entries
       }
-    case 'addEntry':
-      {
-        return { 
-          ...currentState,
-          entries: [...currentState.entries, action.entry]
-        }
-      }
   
     default: 
       console.log('default' )
@@ -43,13 +36,12 @@ const initialState = {
 
 const App = () => {
   const nav = useNavigate()
-  // const [entries, setEntries] = useState([])
+  const [entries, setEntries] = useState([])
 
   // REDUCER HOOK (ADD TO IMPORT!):
   // TAKES TWO PARAMS: CALLBACK REDUCER FN AND AN INITIAL STATE (USUALLY AN OBJECT)
   // RETURNS: 1) A DATASTORE OF CURRENT STATE(READ ONLY) 2) DISPATCH FUNCTION TO SEND AN ACTION TO THE REDUCER
     const [store, dispatch] = useReducer(reducer, initialState)
-    const { entries } = store
 
 
 
@@ -58,12 +50,13 @@ const App = () => {
   useEffect( ()  => {
     const fetchEntries = async () => {const res = await fetch(`${import.meta.env.VITE_API_HOST}/entries`)
     const data = await res.json()
-    // setEntries(data)
+    setEntries(data)
         // USEREDUCE auto inserts current state, just pass in an action 
         dispatch({
           type: 'setEntries',
-          entries: data
+          entries: [{category: "Food", content: "pizza is good"}]
         })
+        dispatch(42)
     }
     fetchEntries()
   }, [])
@@ -71,7 +64,7 @@ const App = () => {
   // HOC: Higher order component
   const ShowEntryWrapper = () => {
     const { id } = useParams()
-    return < ShowEntry entry={entries[id]} entries={entries}/>
+    return < ShowEntry entry={entries[id]} entries={entries} setEntries={setEntries}/>
   }
 
   async function addEntry(category, content){
@@ -80,11 +73,7 @@ const App = () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ category, content })
     })
-    // setEntries([...entries, await returnedEntry.json() ])
-    dispatch({
-      type: 'setEntries',
-      entry:  await returnedEntry.json() 
-    })
+    setEntries([...entries, await returnedEntry.json() ])
     nav(`/entry/${[entries.length]}`)
   }
 
